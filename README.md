@@ -1,6 +1,6 @@
 # Can Words Mitigate the Market for Lemons?
 
-This repository contains a reproducible text-mining project on the Spanish used-car market. The project studies whether more informative listing language is associated with a price premium after controlling for observable car characteristics such as age, mileage, power, seller type, and region.
+This repository contains a text-mining project on the Spanish used-car market. The project studies whether more informative listing language is associated with a price premium after controlling for observable car characteristics such as age, mileage, power, seller type, and region.
 
 ## Research question
 
@@ -9,7 +9,7 @@ Do online used-car listings with more transparent and information-rich descripti
 ## Project structure
 
 - `project.py`: the only script you need. It downloads the data if needed, cleans the listings, builds the disclosure score, runs the models, and saves the outputs.
-- `outputs/`: generated tables, figures, and summary metrics.
+- `outputs/`: generated tables and figures.
 - `report/paper.tex`: two-column report draft in scientific-paper format.
 
 ## Dataset
@@ -29,7 +29,6 @@ python project.py
 
 This command creates:
 
-- `outputs/summary.json`
 - `outputs/tables/*.csv`
 - `outputs/tables/*.tex`
 - `outputs/figures/*.png`
