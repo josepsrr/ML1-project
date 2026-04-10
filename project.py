@@ -472,6 +472,24 @@ plt.tight_layout()
 plt.savefig(os.path.join(figures_dir, "disclosure_by_seller.png"), dpi=200)
 plt.close()
 
+plt.figure(figsize=(7, 4.5))
+sns.histplot(
+    data=sample_plot_df,
+    x="disclosure_index_z",
+    hue="advertizer_type_clean",
+    bins=40,
+    stat="density",
+    common_norm=False,
+    element="step",
+    fill=True,
+    alpha=0.35,
+)
+plt.xlabel("Disclosure index (z-score)")
+plt.ylabel("Density")
+plt.tight_layout()
+plt.savefig(os.path.join(figures_dir, "disclosure_distribution_histogram.png"), dpi=200)
+plt.close()
+
 plot_df = test_df.copy()
 plot_df["baseline_residual"] = test_df["log_price"] - baseline_model.predict(x_test_base)
 plot_df["disclosure_quintile"] = pd.qcut(
