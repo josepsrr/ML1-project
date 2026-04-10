@@ -1,0 +1,155 @@
+{
+  "dataset_rows_after_cleaning": 180514,
+  "model_sample_size": 60000,
+  "inference_sample_size": 40000,
+  "model_metrics": [
+    {
+      "model": "Structured baseline",
+      "rmse_log_price": 0.3971630757458306,
+      "mae_log_price": 0.2752391596692537,
+      "r2": 0.8392698704971745
+    },
+    {
+      "model": "Structured + disclosure lexicon",
+      "rmse_log_price": 0.390193741717221,
+      "mae_log_price": 0.2718926984733254,
+      "r2": 0.8448612946258454
+    },
+    {
+      "model": "Structured + TF-IDF residual text",
+      "rmse_log_price": 0.38145249140300047,
+      "mae_log_price": 0.2631942152213453,
+      "r2": 0.8517343740294869
+    }
+  ],
+  "key_regression_terms": [
+    {
+      "term": "Intercept",
+      "coefficient": 9.220432156969823,
+      "std_error": 0.024178448620955206,
+      "p_value": 0.0
+    },
+    {
+      "term": "disclosure_index_z",
+      "coefficient": 0.02110404861217396,
+      "std_error": 0.0023409264185360783,
+      "p_value": 1.9641296972206544e-19
+    },
+    {
+      "term": "is_private",
+      "coefficient": -0.06666348905499336,
+      "std_error": 0.006871393742166235,
+      "p_value": 2.9681751321892005e-22
+    },
+    {
+      "term": "disclosure_index_z:is_private",
+      "coefficient": -0.0012661032622911413,
+      "std_error": 0.0065285097932345736,
+      "p_value": 0.8462271718308724
+    }
+  ],
+  "top_premium_terms": [
+    {
+      "term": "plazas",
+      "coefficient": 0.15500284094649788,
+      "direction": "premium"
+    },
+    {
+      "term": "original",
+      "coefficient": 0.11395884649333675,
+      "direction": "premium"
+    },
+    {
+      "term": "garaje",
+      "coefficient": 0.0948372163335227,
+      "direction": "premium"
+    },
+    {
+      "term": "cama",
+      "coefficient": 0.0941601283429346,
+      "direction": "premium"
+    },
+    {
+      "term": "homologado",
+      "coefficient": 0.09311787801109249,
+      "direction": "premium"
+    },
+    {
+      "term": "4x4",
+      "coefficient": 0.08012072485940445,
+      "direction": "premium"
+    },
+    {
+      "term": "asientos",
+      "coefficient": 0.07883631820794339,
+      "direction": "premium"
+    },
+    {
+      "term": "capota",
+      "coefficient": 0.07813288073443529,
+      "direction": "premium"
+    },
+    {
+      "term": "techo",
+      "coefficient": 0.07779889347384301,
+      "direction": "premium"
+    },
+    {
+      "term": "impecable",
+      "coefficient": 0.07591334844099516,
+      "direction": "premium"
+    }
+  ],
+  "top_discount_terms": [
+    {
+      "term": "itv",
+      "coefficient": -0.23827949272390944,
+      "direction": "discount"
+    },
+    {
+      "term": "coche",
+      "coefficient": -0.1998310043483524,
+      "direction": "discount"
+    },
+    {
+      "term": "motor",
+      "coefficient": -0.1892652200482312,
+      "direction": "discount"
+    },
+    {
+      "term": "vendo",
+      "coefficient": -0.16735036984624263,
+      "direction": "discount"
+    },
+    {
+      "term": "funciona",
+      "coefficient": -0.1207605705959077,
+      "direction": "discount"
+    },
+    {
+      "term": "negociable",
+      "coefficient": -0.119586785509413,
+      "direction": "discount"
+    },
+    {
+      "term": "vende",
+      "coefficient": -0.11371694368600074,
+      "direction": "discount"
+    },
+    {
+      "term": "hola",
+      "coefficient": -0.10049101489259905,
+      "direction": "discount"
+    },
+    {
+      "term": "2021",
+      "coefficient": -0.09600024753083844,
+      "direction": "discount"
+    },
+    {
+      "term": "probar",
+      "coefficient": -0.08120836405869764,
+      "direction": "discount"
+    }
+  ]
+}

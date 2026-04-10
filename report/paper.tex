@@ -1,0 +1,97 @@
+\documentclass[10pt,twocolumn]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{float}
+
+\title{Can Words Mitigate the Market for Lemons?\\Text Mining Evidence from Spanish Used-Car Listings}
+\author{Josep Serra-Riera}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This project studies whether listing text mitigates information asymmetry in the Spanish used-car market. Using 180{,}514 online car listings collected from \textit{milanuncios.com}, I build a text-based disclosure index that captures informative maintenance signals, transparency cues, honest defect disclosure, and promotional language. The empirical strategy combines a hedonic price model with text-mining techniques grounded in the course material: text normalization, dictionary-based feature extraction, TF-IDF n-grams, and supervised residual modeling. The analysis compares a structured baseline model that uses only observable characteristics with models augmented by textual information. Text improves predictive accuracy beyond structured variables: the holdout $R^2$ rises from 0.839 in the baseline to 0.845 with disclosure features and 0.852 with TF-IDF residual text. In the interaction regression, a one-standard-deviation increase in the disclosure index is associated with an estimated 2.1\% higher price, conditional on observables. Private sellers disclose less on average and receive lower prices, but the marginal return to disclosure is not statistically different from that of professionals. The project contributes an interpretable way to operationalize the classic ``lemons'' problem in a contemporary online market, linking microeconomic theory on adverse selection with practical natural language processing tools.
+\end{abstract}
+
+\section{Introduction}
+Used-car markets are a canonical setting for adverse selection because sellers typically know more about vehicle quality than buyers. Akerlof's lemons framework predicts that when quality is hard to observe, high-quality sellers may not receive a fair price and market performance deteriorates. Online platforms partially change this environment because sellers provide free-form textual descriptions in addition to structured fields such as price, mileage, and year. These texts may either reduce information asymmetry through credible disclosure or worsen it through vague promotional language.
+
+This paper studies whether more informative listing text is associated with higher prices in Spanish used-car ads. The central hypothesis is that disclosure-rich language works as a trust signal. I expected this effect to be stronger for private sellers, who lack dealership reputation and formal screening mechanisms. Rather than treating text mining as a standalone prediction task, the project uses NLP to answer a microeconomic question about market transparency.
+
+\section{Background}
+Akerlof (1970) formalized the lemons problem as a consequence of asymmetric information between buyers and sellers. Subsequent work has shown that online platforms can attenuate these frictions by expanding information disclosure, search, and reputation. In car markets, disclosure is particularly relevant because maintenance history, accident information, and ownership details are costly for buyers to verify ex ante.
+
+From an NLP perspective, the project is close to document representation and supervised learning tasks. Term-weighting schemes such as TF-IDF and linear predictive models are well suited to sparse, high-dimensional ad text. At the same time, a dictionary-based disclosure index offers interpretability, allowing the project to tie specific linguistic signals back to economic theory.
+
+\section{Methodology}
+The raw data are cleaned to parse prices, mileage, registration year, horsepower, seller type, and region. Listing text is built from the ad title and description, normalized to address encoding noise, lowercased, accent-stripped, and tokenized through regular-expression preprocessing.
+
+The key explanatory variable is a disclosure index. It increases with mentions of maintenance and transparency cues such as \textit{revisiones al d\'{\i}a}, \textit{garant\'{\i}a}, \textit{km reales}, or \textit{facturas}; it also rewards defect disclosure and numeric detail, while penalizing purely promotional language such as \textit{oportunidad} or \textit{como nuevo}. The score is standardized to produce a z-score.
+
+Three empirical models are estimated. First, a structured hedonic model predicts log price from mileage, age, power, seller type, and region. Second, the structured model is augmented with disclosure features. Third, a TF-IDF residual model predicts the part of price left unexplained by observables, isolating the value of textual information. Finally, an interaction regression tests whether disclosure matters more for private sellers.
+
+\section{Experimentation}
+The project uses the public \textit{spanish\_used\_car\_market} dataset from Zenodo. After cleaning, implausible or malformed observations are removed, keeping 180{,}514 listings with realistic values for price, mileage, year, horsepower, and seller type. The average listing price is 11{,}708 euros, median price is 8{,}900 euros, mean mileage is roughly 133{,}539 km, and private sellers represent 27.3\% of the cleaned sample. Performance is evaluated on a holdout split using RMSE, MAE, and $R^2$ for log price.
+
+The pipeline is fully reproducible from two commands: \texttt{python scripts/download\_data.py} and \texttt{python scripts/run\_pipeline.py}. The code produces tables, figures, and a JSON summary in the \texttt{outputs/} directory.
+
+\section{Results and Analysis}
+Table~\ref{tab:metrics} reports the predictive comparison across models, while Table~\ref{tab:reg} isolates the disclosure effect in the interaction regression. The baseline hedonic model already performs well, with a holdout $R^2$ of 0.839. Adding the disclosure lexicon improves this to 0.845 and lowers RMSE from 0.397 to 0.390. The strongest performance comes from the TF-IDF residual model, which reaches an $R^2$ of 0.852 and RMSE of 0.381. This confirms that textual descriptions contain information not captured by mileage, age, horsepower, seller type, region, and brand alone.
+
+\begin{table}[H]
+\centering
+\caption{Predictive performance}
+\label{tab:metrics}
+\input{../outputs/tables/model_metrics.tex}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Key interaction-regression terms}
+\label{tab:reg}
+\input{../outputs/tables/interaction_regression_key_terms.tex}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{../outputs/figures/disclosure_by_seller.png}
+\caption{Disclosure index by seller type}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{../outputs/figures/residuals_by_disclosure_quintile.png}
+\caption{Average baseline residual by disclosure quintile}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\columnwidth]{../outputs/figures/top_price_terms.png}
+\caption{Top TF-IDF terms associated with price residuals}
+\end{figure}
+
+The disclosure regression also supports the information story. The coefficient on the standardized disclosure index is 0.0211 and highly significant, which implies that a one-standard-deviation increase in disclosure is associated with approximately 2.1\% higher price, conditional on observables. Private sellers face an estimated 6.7\% price discount relative to professionals, again conditional on controls. However, the disclosure interaction for private sellers is statistically insignificant. This means that the data support a positive role for disclosure overall, but not a distinctly larger marginal return for private sellers.
+
+The descriptive evidence suggests an interesting interpretation. Figure 1 shows that professional sellers have a higher average disclosure index than private sellers. This likely reflects the institutionalized language of dealerships, which often mention warranty, documentation, or included transfer services in templated descriptions. The TF-IDF model reinforces the pattern: premium-associated terms include \textit{garant\'{\i}a}, \textit{revisiones}, \textit{nacional}, and \textit{homologado}, while discount-associated terms include \textit{negociable}, \textit{vendo}, \textit{funciona}, and \textit{itv}. These terms are economically meaningful because they distinguish richer, verification-oriented descriptions from language that is either generic or associated with lower-quality vehicles.
+
+\section{Conclusions}
+This project connects a classic microeconomic problem to modern text-mining methods. By treating free-form listing language as a source of information disclosure, the analysis shows how online texts can be converted into interpretable economic signals. The framework is intentionally simple and replicable, relying on TF-IDF features, linear models, and a theory-driven disclosure dictionary.
+
+The main substantive conclusion is that words matter: textual information improves price prediction and higher disclosure is associated with higher prices. At the same time, the null interaction for private sellers suggests that disclosure is not enough to fully close the trust gap between seller types. Future work could extend the project in three directions: incorporating richer Spanish language models, collecting full descriptions rather than previews, and linking price outcomes to realized sale duration or dealer reputation. Even in its current form, the project provides evidence that online language can partially mitigate the informational frictions at the heart of the lemons problem.
+
+\section{Bibliography}
+\begin{itemize}[leftmargin=*]
+    \item Akerlof, G. A. (1970). The market for ``lemons'': Quality uncertainty and the market mechanism. \textit{Quarterly Journal of Economics}, 84(3), 488--500.
+    \item Campillo S\'anchez, P., \& Uceda Mart\'inez, P. (2020). \textit{spanish\_used\_car\_market: Coches de segunda mano a la venta en Espa\~na}. Zenodo. \url{https://doi.org/10.5281/zenodo.4252636}
+    \item Lewis, G. (2011). Asymmetric information, adverse selection and online disclosure: The case of eBay Motors. \textit{American Economic Review}, 101(4), 1535--1546.
+\end{itemize}
+
+\end{document}
