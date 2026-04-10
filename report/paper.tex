@@ -9,11 +9,26 @@
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{float}
+\usepackage{pgfplotstable}
 
 \graphicspath{{../outputs/figures/}{outputs/figures/}{figures/}}
-\makeatletter
-\def\input@path{{../outputs/tables/}{outputs/tables/}{tables/}}
-\makeatother
+\newcommand{\tablepath}{../outputs/tables/}
+\IfFileExists{../outputs/tables/model_metrics.csv}{}{%
+    \IfFileExists{outputs/tables/model_metrics.csv}{%
+        \renewcommand{\tablepath}{outputs/tables/}
+    }{%
+        \renewcommand{\tablepath}{tables/}
+    }%
+}
+\newcommand{\csvpath}[1]{\tablepath#1}
+
+\pgfplotstableset{
+lemontable/.style={
+    col sep=comma,
+    every head row/.style={before row=\toprule, after row=\midrule},
+    every last row/.style={after row=\bottomrule}
+}
+}
 
 \title{Can Words Mitigate the Market for Lemons?\\Text Mining Evidence from Spanish Used-Car Listings}
 \author{Josep Serra-Riera}
@@ -48,6 +63,24 @@ The project uses the public \textit{spanish\_used\_car\_market} dataset from Zen
 
 The pipeline is fully reproducible from one command: \texttt{python project.py}. The code produces tables and figures in the \texttt{outputs/} directory.
 
+\begin{table}[H]
+\centering
+\caption{Descriptive statistics}
+\label{tab:desc}
+\resizebox{\columnwidth}{!}{%
+\pgfplotstabletypeset[
+lemontable,
+columns={n_listings,mean_price_eur,median_price_eur,mean_km,mean_vehicle_age,private_share},
+columns/n_listings/.style={column name=Listings, column type=r, fixed, precision=0},
+columns/mean_price_eur/.style={column name=Mean price, column type=r, fixed, precision=0},
+columns/median_price_eur/.style={column name=Median price, column type=r, fixed, precision=0},
+columns/mean_km/.style={column name=Mean km, column type=r, fixed, precision=0},
+columns/mean_vehicle_age/.style={column name=Mean age, column type=r, fixed, precision=1},
+columns/private_share/.style={column name=Private share, column type=r, fixed, precision=3}
+]{\csvpath{descriptive_stats.csv}}
+}
+\end{table}
+
 \section{Results and Analysis}
 Table~\ref{tab:metrics} reports the predictive comparison across models, while Table~\ref{tab:reg} isolates the disclosure effect in the interaction regression. The baseline hedonic model already performs well, with a holdout $R^2$ of 0.839. Adding the disclosure lexicon improves this to 0.845 and lowers RMSE from 0.397 to 0.390. The strongest performance comes from the TF-IDF residual model, which reaches an $R^2$ of 0.852 and RMSE of 0.381. This confirms that textual descriptions contain information not captured by mileage, age, horsepower, seller type, region, and brand alone.
 
@@ -55,14 +88,32 @@ Table~\ref{tab:metrics} reports the predictive comparison across models, while T
 \centering
 \caption{Predictive performance}
 \label{tab:metrics}
-\input{model_metrics.tex}
+\resizebox{\columnwidth}{!}{%
+\pgfplotstabletypeset[
+lemontable,
+columns={model,rmse_log_price,mae_log_price,r2},
+columns/model/.style={column name=Model, string type, column type=l},
+columns/rmse_log_price/.style={column name=RMSE, column type=r, fixed, precision=4},
+columns/mae_log_price/.style={column name=MAE, column type=r, fixed, precision=4},
+columns/r2/.style={column name=$R^2$, column type=r, fixed, precision=4}
+]{\csvpath{model_metrics.csv}}
+}
 \end{table}
 
 \begin{table}[H]
 \centering
 \caption{Key interaction-regression terms}
 \label{tab:reg}
-\input{interaction_regression_key_terms.tex}
+\resizebox{\columnwidth}{!}{%
+\pgfplotstabletypeset[
+lemontable,
+columns={term,coefficient,std_error,p_value},
+columns/term/.style={column name=Term, string type, column type=l},
+columns/coefficient/.style={column name=Coefficient, column type=r, fixed, precision=4},
+columns/std_error/.style={column name=Std. error, column type=r, fixed, precision=4},
+columns/p_value/.style={column name=$p$-value, column type=r, fixed, precision=4}
+]{\csvpath{interaction_regression_key_terms.csv}}
+}
 \end{table}
 
 \begin{figure}[H]
