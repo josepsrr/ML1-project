@@ -24,14 +24,10 @@ sns.set_theme(style="whitegrid")
 
 def fix_text(text):
     text = str(text or "")
-    if text == "":
-        return ""
 
-    if any(mark in text for mark in ["Ãƒ", "Ã‚", "Ã", "Â¤", "ï¿½"]):
+    if "Ã" in text or "Â" in text or "ï" in text:
         try:
-            repaired = text.encode("latin1", errors="ignore").decode("utf-8", errors="ignore")
-            if repaired.count("Ãƒ") + repaired.count("Ã‚") <= text.count("Ãƒ") + text.count("Ã‚"):
-                text = repaired
+            text = text.encode("latin1", errors="ignore").decode("utf-8", errors="ignore")
         except UnicodeError:
             pass
 
@@ -44,11 +40,8 @@ def remove_accents(text):
 
 
 def normalise(text):
-    text = fix_text(text)
-    text = text.replace("Leer mÃ¡s", " ")
-    text = text.replace("leer mÃ¡s", " ")
-    text = text.lower()
-    text = remove_accents(text)
+    text = remove_accents(fix_text(text).lower())
+    text = text.replace("leer mas", " ")
     text = re.sub(r"http\S+", " ", text)
     text = re.sub(r"[^a-z0-9\s]", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
@@ -102,11 +95,8 @@ def prepare_x(train_df, test_df, columns):
 
     for col in categorical_columns:
         if col in x_train.columns:
-            if x_train[col].mode(dropna=True).empty:
-                fill_value = "desconocida"
-            else:
-                fill_value = x_train[col].mode(dropna=True).iloc[0]
-
+            mode = x_train[col].mode(dropna=True)
+            fill_value = mode.iloc[0] if not mode.empty else "desconocida"
             x_train[col] = x_train[col].fillna(fill_value)
             x_test[col] = x_test[col].fillna(fill_value)
 
@@ -116,35 +106,26 @@ def prepare_x(train_df, test_df, columns):
 
     return x_train, x_test
 
-
-# 1. Basic settings
-
 data_url = "https://zenodo.org/records/4252636/files/dataset.csv?download=1"
 random_state = 42
 sample_size = 60000
 inference_sample_size = 40000
 
-root = os.path.dirname(os.path.abspath(__file__))
+try:
+    root = os.path.dirname(os.path.abspath(__file__))
+except NameError:
+    root = os.getcwd()
+
 data_folder = os.path.join(root, "data", "raw")
 data_path = os.path.join(data_folder, "dataset.csv")
 outputs_folder = os.path.join(root, "outputs")
 tables_dir = os.path.join(outputs_folder, "tables")
 figures_dir = os.path.join(outputs_folder, "figures")
-old_summary_path = os.path.join(outputs_folder, "summary.json")
 
 os.makedirs(data_folder, exist_ok=True)
 os.makedirs(outputs_folder, exist_ok=True)
 os.makedirs(tables_dir, exist_ok=True)
 os.makedirs(figures_dir, exist_ok=True)
-
-if os.path.exists(old_summary_path):
-    try:
-        os.remove(old_summary_path)
-    except PermissionError:
-        pass
-
-
-# 2. Download data
 
 if not os.path.exists(data_path):
     print("Downloading dataset...")
@@ -152,9 +133,6 @@ if not os.path.exists(data_path):
     print("Dataset downloaded.")
 else:
     print("Dataset already exists.")
-
-
-# 3. Read and clean data
 
 print("Reading dataset...")
 df = pd.read_csv(data_path)
@@ -199,9 +177,6 @@ df["log_km"] = np.log1p(df["km"])
 df = df.reset_index(drop=True)
 
 print("Clean listings:", len(df))
-
-
-# 4. Disclosure score
 
 maintenance_patterns = [
     r"\blibro de mantenimiento\b",
@@ -280,9 +255,6 @@ df["disclosure_index_z"] = (
     df["disclosure_index_raw"] - df["disclosure_index_raw"].mean()
 ) / df["disclosure_index_raw"].std(ddof=0)
 
-
-# 5. Simple descriptive tables
-
 descriptive_stats = pd.DataFrame(
     [
         {
@@ -309,9 +281,6 @@ seller_summary = (
 )
 save_table(seller_summary, "seller_summary", tables_dir)
 
-
-# 6. Train / test split
-
 model_df = df.sample(min(sample_size, len(df)), random_state=random_state).copy()
 train_df, test_df = train_test_split(model_df, test_size=0.2, random_state=random_state)
 
@@ -326,26 +295,17 @@ text_columns = [
     "disclosure_index_z",
 ]
 
-
-# 7. Baseline model
-
 x_train_base, x_test_base = prepare_x(train_df, test_df, structured_columns)
 
 baseline_model = Ridge(alpha=2.5)
 baseline_model.fit(x_train_base, train_df["log_price"])
 baseline_pred = baseline_model.predict(x_test_base)
 
-
-# 8. Baseline + disclosure score
-
 x_train_disc, x_test_disc = prepare_x(train_df, test_df, structured_columns + text_columns)
 
 disclosure_model = Ridge(alpha=2.5)
 disclosure_model.fit(x_train_disc, train_df["log_price"])
 disclosure_pred = disclosure_model.predict(x_test_disc)
-
-
-# 9. TF-IDF model on the residuals
 
 stop_words = sorted({normalise(word) for word in STOP_WORDS if normalise(word)})
 
@@ -375,9 +335,6 @@ residual_model = SGDRegressor(
 residual_model.fit(train_text, residual_train)
 hybrid_pred = baseline_model.predict(x_test_base) + residual_model.predict(test_text)
 
-
-# 10. Model comparison
-
 model_metrics = pd.DataFrame(
     [
         {
@@ -401,9 +358,6 @@ model_metrics = pd.DataFrame(
     ]
 )
 save_table(model_metrics, "model_metrics", tables_dir)
-
-
-# 11. Top words
 
 feature_names = np.array(vectorizer.get_feature_names_out())
 coefs = residual_model.coef_
@@ -432,9 +386,6 @@ top_terms = pd.concat(
 )
 save_table(top_terms, "top_price_terms", tables_dir)
 
-
-# 12. Regression for the paper
-
 inference_df = df.sample(min(inference_sample_size, len(df)), random_state=random_state).copy()
 inference_df["is_private"] = (inference_df["advertizer_type_clean"] == "Particular").astype(int)
 
@@ -458,9 +409,6 @@ key_terms = regression_table[
     )
 ].copy()
 save_table(key_terms, "interaction_regression_key_terms", tables_dir)
-
-
-# 13. Figures
 
 sample_plot_df = df.sample(min(20000, len(df)), random_state=random_state).copy()
 
@@ -530,9 +478,6 @@ axes[1].set_title("Top discount terms")
 fig.tight_layout()
 fig.savefig(os.path.join(figures_dir, "top_price_terms.png"), dpi=200)
 plt.close(fig)
-
-
-# 14. Final prints
 
 print()
 print("Done.")
