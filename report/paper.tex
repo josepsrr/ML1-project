@@ -12,12 +12,16 @@
 \usepackage{pgfplotstable}
 
 \graphicspath{{../outputs/figures/}{outputs/figures/}{figures/}}
-\newcommand{\tablepath}{../outputs/tables/}
-\IfFileExists{../outputs/tables/model_metrics.csv}{}{%
-    \IfFileExists{outputs/tables/model_metrics.csv}{%
-        \renewcommand{\tablepath}{outputs/tables/}
+\newcommand{\tablepath}{}
+\IfFileExists{model_metrics.csv}{}{%
+    \IfFileExists{../outputs/tables/model_metrics.csv}{%
+        \renewcommand{\tablepath}{../outputs/tables/}
     }{%
-        \renewcommand{\tablepath}{tables/}
+        \IfFileExists{outputs/tables/model_metrics.csv}{%
+            \renewcommand{\tablepath}{outputs/tables/}
+        }{%
+            \renewcommand{\tablepath}{tables/}
+        }%
     }%
 }
 \newcommand{\csvpath}[1]{\tablepath#1}
@@ -28,6 +32,14 @@ lemontable/.style={
     every head row/.style={before row=\toprule, after row=\midrule},
     every last row/.style={after row=\bottomrule}
 }
+}
+
+\pgfplotstableread[col sep=comma]{\csvpath{model_metrics.csv}}\metricstable
+\pgfplotstableread[col sep=comma]{\csvpath{interaction_regression_key_terms.csv}}\regressiontable
+
+\newcommand{\tabnum}[4]{%
+    \pgfplotstablegetelem{#1}{#2}\of#3%
+    \pgfmathprintnumber[fixed,precision=#4]{\pgfplotsretval}%
 }
 
 \title{Can Words Mitigate the Market for Lemons?\\Text Mining Evidence from Spanish Used-Car Listings}
@@ -89,14 +101,24 @@ Table~\ref{tab:metrics} reports the predictive comparison across models, while T
 \caption{Predictive performance}
 \label{tab:metrics}
 \resizebox{\columnwidth}{!}{%
-\pgfplotstabletypeset[
-lemontable,
-columns={model,rmse_log_price,mae_log_price,r2},
-columns/model/.style={column name=Model, string type, column type=l},
-columns/rmse_log_price/.style={column name=RMSE, column type=r, fixed, precision=4},
-columns/mae_log_price/.style={column name=MAE, column type=r, fixed, precision=4},
-columns/r2/.style={column name=$R^2$, column type=r, fixed, precision=4}
-]{\csvpath{model_metrics.csv}}
+\begin{tabular}{lrrr}
+\toprule
+Model & RMSE & MAE & $R^2$ \\
+\midrule
+Structured baseline
+& \tabnum{0}{rmse_log_price}{\metricstable}{4}
+& \tabnum{0}{mae_log_price}{\metricstable}{4}
+& \tabnum{0}{r2}{\metricstable}{4} \\
+Structured + disclosure lexicon
+& \tabnum{1}{rmse_log_price}{\metricstable}{4}
+& \tabnum{1}{mae_log_price}{\metricstable}{4}
+& \tabnum{1}{r2}{\metricstable}{4} \\
+Structured + TF-IDF residual text
+& \tabnum{2}{rmse_log_price}{\metricstable}{4}
+& \tabnum{2}{mae_log_price}{\metricstable}{4}
+& \tabnum{2}{r2}{\metricstable}{4} \\
+\bottomrule
+\end{tabular}
 }
 \end{table}
 
@@ -105,14 +127,28 @@ columns/r2/.style={column name=$R^2$, column type=r, fixed, precision=4}
 \caption{Key interaction-regression terms}
 \label{tab:reg}
 \resizebox{\columnwidth}{!}{%
-\pgfplotstabletypeset[
-lemontable,
-columns={term,coefficient,std_error,p_value},
-columns/term/.style={column name=Term, string type, column type=l},
-columns/coefficient/.style={column name=Coefficient, column type=r, fixed, precision=4},
-columns/std_error/.style={column name=Std. error, column type=r, fixed, precision=4},
-columns/p_value/.style={column name=$p$-value, column type=r, fixed, precision=4}
-]{\csvpath{interaction_regression_key_terms.csv}}
+\begin{tabular}{lrrr}
+\toprule
+Term & Coefficient & Std. error & $p$-value \\
+\midrule
+Intercept
+& \tabnum{0}{coefficient}{\regressiontable}{4}
+& \tabnum{0}{std_error}{\regressiontable}{4}
+& \tabnum{0}{p_value}{\regressiontable}{4} \\
+Disclosure index
+& \tabnum{1}{coefficient}{\regressiontable}{4}
+& \tabnum{1}{std_error}{\regressiontable}{4}
+& \tabnum{1}{p_value}{\regressiontable}{4} \\
+Private seller
+& \tabnum{2}{coefficient}{\regressiontable}{4}
+& \tabnum{2}{std_error}{\regressiontable}{4}
+& \tabnum{2}{p_value}{\regressiontable}{4} \\
+Disclosure index $\times$ private seller
+& \tabnum{3}{coefficient}{\regressiontable}{4}
+& \tabnum{3}{std_error}{\regressiontable}{4}
+& \tabnum{3}{p_value}{\regressiontable}{4} \\
+\bottomrule
+\end{tabular}
 }
 \end{table}
 
