@@ -10,6 +10,11 @@
 \usepackage{enumitem}
 \usepackage{float}
 
+\graphicspath{{../outputs/figures/}{outputs/figures/}{figures/}}
+\makeatletter
+\def\input@path{{../outputs/tables/}{outputs/tables/}{tables/}}
+\makeatother
+
 \title{Can Words Mitigate the Market for Lemons?\\Text Mining Evidence from Spanish Used-Car Listings}
 \author{Josep Serra-Riera}
 \date{}
@@ -50,31 +55,31 @@ Table~\ref{tab:metrics} reports the predictive comparison across models, while T
 \centering
 \caption{Predictive performance}
 \label{tab:metrics}
-\input{../outputs/tables/model_metrics.tex}
+\input{model_metrics.tex}
 \end{table}
 
 \begin{table}[H]
 \centering
 \caption{Key interaction-regression terms}
 \label{tab:reg}
-\input{../outputs/tables/interaction_regression_key_terms.tex}
+\input{interaction_regression_key_terms.tex}
 \end{table}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\columnwidth]{../outputs/figures/disclosure_by_seller.png}
+\includegraphics[width=\columnwidth]{disclosure_by_seller.png}
 \caption{Disclosure index by seller type}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\columnwidth]{../outputs/figures/residuals_by_disclosure_quintile.png}
+\includegraphics[width=\columnwidth]{residuals_by_disclosure_quintile.png}
 \caption{Average baseline residual by disclosure quintile}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=\columnwidth]{../outputs/figures/top_price_terms.png}
+\includegraphics[width=\columnwidth]{top_price_terms.png}
 \caption{Top TF-IDF terms associated with price residuals}
 \end{figure}
 
