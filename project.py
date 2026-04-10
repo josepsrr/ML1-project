@@ -72,7 +72,12 @@ def count_words(text, patterns):
 
 def save_table(table, name, tables_dir):
     table.to_csv(os.path.join(tables_dir, name + ".csv"), index=False)
-    table.to_latex(os.path.join(tables_dir, name + ".tex"), index=False, float_format="%.4f")
+    table.to_latex(
+        os.path.join(tables_dir, name + ".tex"),
+        index=False,
+        float_format="%.4f",
+        escape=True,
+    )
 
 
 def prepare_x(train_df, test_df, columns):
