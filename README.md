@@ -8,9 +8,7 @@ Do online used-car listings with more transparent and information-rich descripti
 
 ## Project structure
 
-- `scripts/download_data.py`: downloads the Spanish used-car dataset from Zenodo.
-- `scripts/run_pipeline.py`: runs the full cleaning, feature engineering, modeling, and reporting workflow.
-- `src/lemons_project/`: reusable project code.
+- `project.py`: the only script you need. It downloads the data if needed, cleans the listings, builds the disclosure score, runs the models, and saves the outputs.
 - `outputs/`: generated tables, figures, and summary metrics.
 - `report/paper.tex`: two-column report draft in scientific-paper format.
 
@@ -21,16 +19,15 @@ The project uses the public dataset **"spanish_used_car_market: Coches de segund
 - DOI: [10.5281/zenodo.4252636](https://doi.org/10.5281/zenodo.4252636)
 - Record: [https://zenodo.org/records/4252636](https://zenodo.org/records/4252636)
 
-The raw CSV is not committed because of its size. Use the download script instead.
+The raw CSV is not committed because of its size. The script downloads it automatically if needed.
 
 ## Quick start
 
 ```bash
-python scripts/download_data.py
-python scripts/run_pipeline.py
+python project.py
 ```
 
-The second command creates:
+This command creates:
 
 - `outputs/summary.json`
 - `outputs/tables/*.csv`
@@ -39,7 +36,7 @@ The second command creates:
 
 ## Method overview
 
-The pipeline combines:
+The script combines:
 
 1. Text cleaning and normalization for Spanish listing text.
 2. Hand-crafted lexical indicators of transparency, maintenance disclosure, defect disclosure, and promotional language.
@@ -69,4 +66,4 @@ The pipeline combines:
 
 - The workflow is deterministic through a fixed random seed.
 - The code does not require a downloaded spaCy Spanish model.
-- The downloader stores the dataset in `data/raw/dataset.csv`.
+- The script stores the dataset in `data/raw/dataset.csv`.

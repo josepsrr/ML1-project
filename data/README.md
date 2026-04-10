@@ -5,7 +5,7 @@ The raw dataset is intentionally excluded from version control because the CSV i
 Run:
 
 ```bash
-python scripts/download_data.py
+python project.py
 ```
 
-This will download the Zenodo file to `data/raw/dataset.csv`.
+This will download the Zenodo file to `data/raw/dataset.csv` if it is missing, then run the full analysis.
